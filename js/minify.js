@@ -1,13 +1,16 @@
-var Terser = require('terser');
-var fs = require('fs');
+const { minify } = require('terser');
+const fs = require('fs');
 
 process.argv.forEach(function(path) {
   if(path != "/snapshot/js/minify.js" && path.endsWith(".js")) {
     var options = { mangle: false }
     var data = fs.readFileSync(path, 'utf8').toString();
-    var result = Terser.minify(data, options);
-    if(result.error) throw result.error;
-    console.log('minified ' + path);
-    fs.writeFileSync(path, result.code);
+    minify(data, options).then((result) => {
+      if(result.error)
+        throw result.error;
+
+      console.log(`Minified ${path}`);
+      fs.writeFileSync(path, result.code);
+    });
   }
 });
